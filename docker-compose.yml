@@ -1,0 +1,31 @@
+version: 2.24.2
+services:
+  mysql:
+    image: mysql:8.3
+    container_name: ${PROJECT_NAME}-mysql
+    restart: always
+    networks:
+      test:
+        aliases:
+          - mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: database
+  php:
+    image: php:8-cli
+    build:
+      dockerfile: ./Dockerfile
+    container_name: ${PROJECT_NAME}-php
+    restart: always
+    networks:
+      test:
+    command: 'sh -c "while true; do sleep 1; done"'
+    depends_on:
+      - mysql
+    working_dir: '/test'
+    volumes:
+      - "./:/test"
+networks:
+  test:
+    name: "${PROJECT_NAME}-test"
+
