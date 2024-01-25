@@ -12,7 +12,7 @@ class IntegerParamProcessor extends AbstractParamProcessor
     public function convertValue(mixed $value): string
     {
         $this->throwErrorOnInvalidValue($value);
-        
+
         return is_null($value) ? 'null' : (int) $value;
     }
 

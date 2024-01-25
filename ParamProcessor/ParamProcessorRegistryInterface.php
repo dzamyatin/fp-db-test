@@ -15,5 +15,5 @@ interface ParamProcessorRegistryInterface
      */
     public function getSupported($value): ?ParamProcessorInterface;
 
-    public function add(ParamProcessorInterface $processor): void;
+    public function add(ParamProcessorInterface $processor): self;
 }

@@ -14,9 +14,11 @@ class ParamProcessorRegistry implements ParamProcessorRegistryInterface
     /**
      * @inheritdoc
      */
-    public function add(ParamProcessorInterface $processor): void
+    public function add(ParamProcessorInterface $processor): self
     {
         $this->processors[] = $processor;
+
+        return $this;
     }
 
     /**

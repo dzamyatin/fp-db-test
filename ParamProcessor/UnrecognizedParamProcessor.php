@@ -2,9 +2,7 @@
 
 namespace FpDbTest\ParamProcessor;
 
-use FpDbTest\ParamProcessor\Exception\WrongParamTypeException;
-
-class UnrecognizedParamProcessor implements ParamProcessorInterface
+class UnrecognizedParamProcessor extends AbstractParamProcessor
 {
     public function __construct(private ParamProcessorRegistryInterface $paramProcessorRegistry)
     {
@@ -18,12 +16,7 @@ class UnrecognizedParamProcessor implements ParamProcessorInterface
     public function convertValue(mixed $value): string
     {
         return $this->paramProcessorRegistry->getSupported($value)?->convertValue($value) ??
-            throw new WrongParamTypeException(
-                sprintf(
-                    'Value %s is not supported for any param processor',
-                    var_export($value, true)
-                )
-            );
+            $this->throwWrongParamTypeException($value);
     }
 
     public function isValueSupportedRecognizing(mixed $value): bool

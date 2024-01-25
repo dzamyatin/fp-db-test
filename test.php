@@ -1,7 +1,7 @@
 <?php
 
-use FpDbTest\Database;
 use FpDbTest\DatabaseTest;
+use FpDbTest\ServiceLocator;
 
 spl_autoload_register(function ($class) {
     $a = array_slice(explode('\\', $class), 1);
@@ -12,13 +12,11 @@ spl_autoload_register(function ($class) {
     require_once $filename;
 });
 
-$mysqli = @new mysqli('mysql', 'root', 'password', 'database', 3306);
-if ($mysqli->connect_errno) {
-    throw new Exception($mysqli->connect_error);
-}
+$serviceLocator = new ServiceLocator(
+    require __DIR__ .'/services.php',
+    require __DIR__ .'/afterCreateServiceHooks.php'
+);
 
-$db = new Database($mysqli);
-$test = new DatabaseTest($db);
-$test->testBuildQuery();
+$serviceLocator->get(DatabaseTest::class)->testBuildQuery();
 
 exit('OK');

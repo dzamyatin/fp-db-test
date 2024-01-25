@@ -3,16 +3,15 @@
 namespace FpDbTest;
 
 use Exception;
+use FpDbTest\ParamProcessor\ParamProcessorRegistryInterface;
 use mysqli;
 
 class Database implements DatabaseInterface
 {
-    private mysqli $mysqli;
-
-    public function __construct(mysqli $mysqli)
-    {
-        $this->mysqli = $mysqli;
-    }
+    public function __construct(
+        private mysqli $mysqli,
+        private ParamProcessorRegistryInterface $paramProcessorRegistry
+    ) {}
 
     public function buildQuery(string $query, array $args = []): string
     {
