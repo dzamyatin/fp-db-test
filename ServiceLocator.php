@@ -43,7 +43,7 @@ class ServiceLocator
      * @return T
      * @throws Exception
      */
-    public function newInstance(string $serviceName): object
+    private function newInstance(string $serviceName): object
     {
         if (!is_callable($this->config[$serviceName] ?? null)) {
             throw new Exception(

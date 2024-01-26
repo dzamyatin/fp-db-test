@@ -8,6 +8,7 @@ use FpDbTest\DatabaseTest;
 use FpDbTest\ParamProcessor\ArrayParamProcessor;
 use FpDbTest\ParamProcessor\EscapeStringConverterInterface;
 use FpDbTest\ParamProcessor\FloatParamProcessor;
+use FpDbTest\ParamProcessor\IdentifierParamProcessor;
 use FpDbTest\ParamProcessor\IntegerParamProcessor;
 use FpDbTest\ParamProcessor\MysqliEscapeStringConverter;
 use FpDbTest\ParamProcessor\ParamProcessorRegistry;
@@ -40,6 +41,7 @@ return [
                 $serviceLocator->get(FloatParamProcessor::class),
                 $serviceLocator->get(IntegerParamProcessor::class),
                 $serviceLocator->get(StringParamProcessor::class),
+                $serviceLocator->get(IdentifierParamProcessor::class),
             ]
         );
     },
@@ -54,6 +56,11 @@ return [
     },
     StringParamProcessor::class => static function (ServiceLocator $serviceLocator): StringParamProcessor {
         return new StringParamProcessor(
+            $serviceLocator->get(EscapeStringConverterInterface::class)
+        );
+    },
+    IdentifierParamProcessor::class => static function (ServiceLocator $serviceLocator): IdentifierParamProcessor {
+        return new IdentifierParamProcessor(
             $serviceLocator->get(EscapeStringConverterInterface::class)
         );
     },

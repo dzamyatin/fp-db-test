@@ -13,8 +13,8 @@ spl_autoload_register(function ($class) {
 });
 
 $serviceLocator = new ServiceLocator(
-    require __DIR__ .'/services.php',
-    require __DIR__ .'/afterCreateServiceHooks.php'
+    require __DIR__ .'/config/services.php',
+    require __DIR__ .'/config/afterCreateServiceHooks.php'
 );
 
 $serviceLocator->get(DatabaseTest::class)->testBuildQuery();
