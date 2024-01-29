@@ -8,6 +8,7 @@ use FpDbTest\ParamProcessor\ParamProcessorRegistryInterface;
 use FpDbTest\PatternString\Dto\PatternPositionDto;
 use FpDbTest\PatternString\PatternResolverInterface;
 use FpDbTest\TemplateEngine\TemplateEngineMakerInterface;
+use FpDbTest\TemplateEngine\TemplateEngineProcessorInterface;
 use mysqli;
 
 class Database implements DatabaseInterface
@@ -18,7 +19,8 @@ class Database implements DatabaseInterface
         private mysqli $mysqli,
         private ParamProcessorRegistryInterface $paramProcessorRegistry,
         private PatternResolverInterface $patternResolver,
-        private TemplateEngineMakerInterface $templateMaker
+        private TemplateEngineMakerInterface $templateMaker,
+        private TemplateEngineProcessorInterface $templateEngineProcessor
     ) {}
 
     /**
@@ -45,45 +47,47 @@ class Database implements DatabaseInterface
     {
         $template = $this->templateMaker->make($query);
 
-        var_dump($template);
+        $result = $this->templateEngineProcessor->process($template, $args);
+
+        var_dump($result);
         die();
 
-        $paramProcessorsMap = self::mapPatternIdToParamProcessor(
-            $this->paramProcessorRegistry->getAll()
-        );
-
-        if (!$paramProcessorsMap) {
-            return $query;
-        }
-
-        $matches = [];
-        preg_match_all(
-            self::createParamProcessorsRegexpToSearchPatterns($paramProcessorsMap),
-            $query,
-            $matches,
-            PREG_OFFSET_CAPTURE |
-            PREG_PATTERN_ORDER |
-            PREG_UNMATCHED_AS_NULL
-        );
-
-        $matches = array_filter($matches);
-
-        if (!$matches) {
-            return $query;
-        }
-
-        list($argSequences) = $matches;
-        $offsetToArgMap = self::matchArgsToOffset(
-            $argSequences,
-            $args
-        );
-
-        return $this->resolveTemplate(
-            $query,
-            $offsetToArgMap,
-            $paramProcessorsMap,
-            $matches
-        );
+//        $paramProcessorsMap = self::mapPatternIdToParamProcessor(
+//            $this->paramProcessorRegistry->getAll()
+//        );
+//
+//        if (!$paramProcessorsMap) {
+//            return $query;
+//        }
+//
+//        $matches = [];
+//        preg_match_all(
+//            self::createParamProcessorsRegexpToSearchPatterns($paramProcessorsMap),
+//            $query,
+//            $matches,
+//            PREG_OFFSET_CAPTURE |
+//            PREG_PATTERN_ORDER |
+//            PREG_UNMATCHED_AS_NULL
+//        );
+//
+//        $matches = array_filter($matches);
+//
+//        if (!$matches) {
+//            return $query;
+//        }
+//
+//        list($argSequences) = $matches;
+//        $offsetToArgMap = self::matchArgsToOffset(
+//            $argSequences,
+//            $args
+//        );
+//
+//        return $this->resolveTemplate(
+//            $query,
+//            $offsetToArgMap,
+//            $paramProcessorsMap,
+//            $matches
+//        );
     }
 
     /**

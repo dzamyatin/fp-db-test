@@ -8,7 +8,7 @@ class TemplatePartDto
 {
     public function __construct(
         private readonly string $string,
-        private readonly bool $param,
+        private readonly ?string $paramProcessorCode,
     ) {
     }
 
@@ -21,10 +21,18 @@ class TemplatePartDto
     }
 
     /**
+     * @return string|null
+     */
+    public function getParamProcessorCode(): ?string
+    {
+        return $this->paramProcessorCode;
+    }
+
+    /**
      * @return bool
      */
     public function isParam(): bool
     {
-        return $this->param;
+        return (bool) $this->paramProcessorCode;
     }
 }

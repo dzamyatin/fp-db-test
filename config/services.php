@@ -20,6 +20,8 @@ use FpDbTest\PatternString\PatternResolverInterface;
 use FpDbTest\ServiceLocator;
 use FpDbTest\TemplateEngine\TemplateEngineMaker;
 use FpDbTest\TemplateEngine\TemplateEngineMakerInterface;
+use FpDbTest\TemplateEngine\TemplateEngineProcessor;
+use FpDbTest\TemplateEngine\TemplateEngineProcessorInterface;
 
 return [
     mysqli::class => static function (): mysqli {
@@ -36,6 +38,7 @@ return [
             $serviceLocator->get(ParamProcessorRegistryInterface::class),
             $serviceLocator->get(PatternResolverInterface::class),
             $serviceLocator->get(TemplateEngineMakerInterface::class),
+            $serviceLocator->get(TemplateEngineProcessorInterface::class),
         );
     },
     DatabaseTest::class => static function (ServiceLocator $serviceLocator): DatabaseTest {
@@ -86,7 +89,11 @@ return [
     },
     TemplateEngineMakerInterface::class => static function (ServiceLocator $serviceLocator): TemplateEngineMakerInterface {
         return new TemplateEngineMaker(
-            $serviceLocator->get(PatternResolverInterface::class),
+            $serviceLocator->get(ParamProcessorRegistryInterface::class),
+        );
+    },
+    TemplateEngineProcessorInterface::class => static function (ServiceLocator $serviceLocator): TemplateEngineProcessorInterface {
+        return new TemplateEngineProcessor(
             $serviceLocator->get(ParamProcessorRegistryInterface::class),
         );
     },

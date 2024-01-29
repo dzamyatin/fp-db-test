@@ -8,7 +8,6 @@ use FpDbTest\ParamProcessor\ParamProcessorInterface;
 use FpDbTest\ParamProcessor\ParamProcessorRegistryInterface;
 use FpDbTest\TemplateEngine\Dto\TemplateChunkDto;
 use FpDbTest\TemplateEngine\Dto\TemplatePositionDto;
-use FpDbTest\PatternString\PatternResolverInterface;
 use FpDbTest\TemplateEngine\Dto\TemplateBlockDto;
 use FpDbTest\TemplateEngine\Dto\TemplateDto;
 use FpDbTest\TemplateEngine\Dto\TemplatePartDto;
@@ -17,7 +16,6 @@ use FpDbTest\TemplateEngine\Dto\TemplatePositionParamProcessorAwareDto;
 class TemplateEngineMaker implements TemplateEngineMakerInterface
 {
     public function __construct(
-        private PatternResolverInterface $patternResolver,
         private ParamProcessorRegistryInterface $paramProcessorRegistry,
     ) {
     }
@@ -57,17 +55,17 @@ class TemplateEngineMaker implements TemplateEngineMakerInterface
 
         $result = [];
         foreach ($chunks as $chunk) {
-            $param = false;
+            $paramProcessorCode = null;
             for ($i = 0; $i < count($sequences); $i++) {
                 if ($sequences[$i]->offsetStart === $chunk->offsetStart) {
-                    $param = true;
+                    $paramProcessorCode = $sequences[$i]->processorCode;
                     break;
                 }
             }
 
             $result[] = new TemplatePartDto(
                 $chunk->content,
-                $param
+                $paramProcessorCode
             );
         }
 
