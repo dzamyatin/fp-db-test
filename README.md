@@ -3,7 +3,9 @@
 2) make (optional)
 
 #How to run test with make:
-> make test
+```
+make test
+```
 
 #How to run test an alternative way:
 ```
