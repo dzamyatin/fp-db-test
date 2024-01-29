@@ -7,7 +7,7 @@ use FpDbTest\ParamProcessor\ParamProcessorInterface;
 use FpDbTest\ParamProcessor\ParamProcessorRegistryInterface;
 use FpDbTest\PatternString\Dto\PatternPositionDto;
 use FpDbTest\PatternString\PatternResolverInterface;
-use FpDbTest\PostProcessor\PostProcessorRegistryInterface;
+use FpDbTest\TemplateEngine\TemplateEngineMakerInterface;
 use mysqli;
 
 class Database implements DatabaseInterface
@@ -17,8 +17,8 @@ class Database implements DatabaseInterface
     public function __construct(
         private mysqli $mysqli,
         private ParamProcessorRegistryInterface $paramProcessorRegistry,
-        private PostProcessorRegistryInterface $postProcessorRegistry,
-        private PatternResolverInterface $patternResolver
+        private PatternResolverInterface $patternResolver,
+        private TemplateEngineMakerInterface $templateMaker
     ) {}
 
     /**
@@ -33,7 +33,7 @@ class Database implements DatabaseInterface
 
         $query = $this->applyParamProcessors($query, $args);
 
-        return $this->applyPostProcessors($query);
+        return $query;
     }
 
     public function skip()
@@ -41,17 +41,10 @@ class Database implements DatabaseInterface
         return self::SKIP_SYMBOL;
     }
 
-    private function applyPostProcessors(string $query): string
-    {
-        foreach ($this->postProcessorRegistry->getAll() as $postProcessor) {
-            $query = $postProcessor->process($query, $this);
-        }
-
-        return $query;
-    }
-
     private function applyParamProcessors(string $query, array $args): string
     {
+        $this->templateMaker->make($query);die();
+
         $paramProcessorsMap = self::mapPatternIdToParamProcessor(
             $this->paramProcessorRegistry->getAll()
         );
@@ -96,7 +89,7 @@ class Database implements DatabaseInterface
      * @return array<int, mixed>
      * @throws WrongParamTypeException
      */
-    public static function matchArgsToOffset(array $argSequences, array $args): array
+    private static function matchArgsToOffset(array $argSequences, array $args): array
     {
         $offsetToArgMap = [];
         foreach ($argSequences as $argKey => $argSequence) {

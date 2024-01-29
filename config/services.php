@@ -17,10 +17,9 @@ use FpDbTest\ParamProcessor\StringParamProcessor;
 use FpDbTest\ParamProcessor\UnrecognizedParamProcessor;
 use FpDbTest\PatternString\PatternResolver;
 use FpDbTest\PatternString\PatternResolverInterface;
-use FpDbTest\PostProcessor\ConditionPostProcessor;
-use FpDbTest\PostProcessor\PostProcessorRegistry;
-use FpDbTest\PostProcessor\PostProcessorRegistryInterface;
 use FpDbTest\ServiceLocator;
+use FpDbTest\TemplateEngine\TemplateEngineMaker;
+use FpDbTest\TemplateEngine\TemplateEngineMakerInterface;
 
 return [
     mysqli::class => static function (): mysqli {
@@ -35,8 +34,8 @@ return [
         return new Database(
             $serviceLocator->get(mysqli::class),
             $serviceLocator->get(ParamProcessorRegistryInterface::class),
-            $serviceLocator->get(PostProcessorRegistryInterface::class),
             $serviceLocator->get(PatternResolverInterface::class),
+            $serviceLocator->get(TemplateEngineMakerInterface::class),
         );
     },
     DatabaseTest::class => static function (ServiceLocator $serviceLocator): DatabaseTest {
@@ -82,17 +81,13 @@ return [
             $serviceLocator->get(ParamProcessorRegistryInterface::class)
         );
     },
-    ConditionPostProcessor::class => static function (): ConditionPostProcessor {
-        return new ConditionPostProcessor();
-    },
-    PostProcessorRegistryInterface::class => static function (ServiceLocator $serviceLocator): PostProcessorRegistryInterface {
-        return new PostProcessorRegistry(
-            [
-                $serviceLocator->get(ConditionPostProcessor::class)
-            ],
-        );
-    },
     PatternResolverInterface::class => static function (): PatternResolverInterface {
         return new PatternResolver();
+    },
+    TemplateEngineMakerInterface::class => static function (ServiceLocator $serviceLocator): TemplateEngineMakerInterface {
+        return new TemplateEngineMaker(
+            $serviceLocator->get(PatternResolverInterface::class),
+            $serviceLocator->get(ParamProcessorRegistryInterface::class),
+        );
     },
 ];

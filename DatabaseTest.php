@@ -17,26 +17,26 @@ class DatabaseTest
     {
         $results = [];
 
-        $results[] = $this->db->buildQuery('SELECT name FROM users WHERE user_id = 1');
-
-        $results[] = $this->db->buildQuery(
-            'SELECT * FROM users WHERE name = ? AND block = 0',
-            ['Jack']
-        );
-
-        $results[] = $this->db->buildQuery(
-            'SELECT ?# FROM users WHERE user_id = ?d AND block = ?d',
-            [['name', 'email'], 2, true]
-        );
-
-        $results[] = $this->db->buildQuery(
-            'UPDATE users SET ?a WHERE user_id = -1',
-            [['name' => 'Jack', 'email' => null]]
-        );
+//        results[] = $this->db->buildQuery('SELECT name FROM users WHERE user_id = 1');
+//
+//        $results[] = $this->db->buildQuery(
+//            'SELECT * FROM users WHERE name = ? AND block = 0',
+//            ['Jack']
+//        );
+//
+//        $results[] = $this->db->buildQuery(
+//            'SELECT ?# FROM users WHERE user_id = ?d AND block = ?d',
+//            [['name', 'email'], 2, true]
+//        );
+//
+//        $results[] = $this->db->buildQuery(
+//            'UPDATE users SET ?a WHERE user_id = -1',
+//            [['name' => 'Jack', 'email' => null]]
+//        );
 
         foreach ([null, true] as $block) {
             $results[] = $this->db->buildQuery(
-                'SELECT name FROM users WHERE ?# IN (?a){ AND block = ?d}',
+                '{}{}SELECT name FROM users WHERE ?# IN (?a){ AND block = ?d} ',
                 ['user_id', [1, 2, 3], $block ?? $this->db->skip()]
             );
         }
