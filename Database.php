@@ -43,7 +43,10 @@ class Database implements DatabaseInterface
 
     private function applyParamProcessors(string $query, array $args): string
     {
-        $this->templateMaker->make($query);die();
+        $template = $this->templateMaker->make($query);
+
+        var_dump($template);
+        die();
 
         $paramProcessorsMap = self::mapPatternIdToParamProcessor(
             $this->paramProcessorRegistry->getAll()

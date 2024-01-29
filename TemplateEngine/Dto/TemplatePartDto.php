@@ -8,7 +8,7 @@ class TemplatePartDto
 {
     public function __construct(
         private readonly string $string,
-        private readonly int $argsQuantity,
+        private readonly bool $param,
     ) {
     }
 
@@ -21,10 +21,10 @@ class TemplatePartDto
     }
 
     /**
-     * @return int
+     * @return bool
      */
-    public function getArgsQuantity(): int
+    public function isParam(): bool
     {
-        return $this->argsQuantity;
+        return $this->param;
     }
 }

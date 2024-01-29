@@ -21,4 +21,16 @@ class TemplateBlockDto
     {
         return $this->parts;
     }
+
+    public function getArgumentCount(): int
+    {
+        $count = 0;
+        foreach ($this->parts as $part) {
+            if ($part->isParam()) {
+                $count++;
+            }
+        }
+
+        return $count;
+    }
 }

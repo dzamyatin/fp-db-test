@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace FpDbTest\TemplateEngine;
 
-use FpDbTest\ParamProcessor\Exception\WrongParamTypeException;
 use FpDbTest\ParamProcessor\ParamProcessorInterface;
 use FpDbTest\ParamProcessor\ParamProcessorRegistryInterface;
-use FpDbTest\PatternString\Dto\PatternPositionDto;
 use FpDbTest\TemplateEngine\Dto\TemplateChunkDto;
 use FpDbTest\TemplateEngine\Dto\TemplatePositionDto;
 use FpDbTest\PatternString\PatternResolverInterface;
@@ -25,86 +23,65 @@ class TemplateEngineMaker implements TemplateEngineMakerInterface
 
     public function make(string $query): TemplateDto
     {
-        $paramProcessorsMap = self::mapPatternIdToParamProcessor(
-            $this->paramProcessorRegistry->getAll()
-        );
-
-        if (!$paramProcessorsMap) {
-            return self::getEmpty($query);
-        }
-
-        $sequences = self::createSequencesFromPattern(
-            self::createParamProcessorsRegexpToSearchPatterns($paramProcessorsMap),
-            $query
-        );
-
-        $blocks = $this->createBlocks($query, $sequences);
-
-//        var_dump($blocks);die();
-
-
-//
-//        list($argSequences) = $matches;
-//        $offsetToArgMap = self::matchArgsToOffset(
-//            $argSequences,
-//            $args
-//        );
-//
-//        $this->resolveTemplate(
-//            $query,
-//            $offsetToArgMap,
-//            $paramProcessorsMap,
-//            $matches
-//        );
-
-
-        return new TemplateDto([]);
+        return new TemplateDto($this->createBlocks($query));
     }
 
     /**
      * @param string $query
-     * @param TemplatePositionDto[] $argumentSequences
      * @return TemplateBlockDto[]
      */
-    private function createBlocks(string $query, array $argumentSequences): array
-    {
+    private function createBlocks(string $query): array {
         $matches = self::createSequencesFromPattern('/\{((.|\n)*?)\}/', $query);
         $chunks = self::splitToChunks($query, $matches);
 
         $result = [];
-        $lastArgIndex = 0;
         foreach ($chunks as $chunk) {
-            $args = [];
-            for ($i = $lastArgIndex; $i < count($argumentSequences); $i++) {
-                $lastArgIndex = $i + 1;
-                $currentArgumentPosition = $argumentSequences[$i];
-                if (
-                    $chunk->offsetStart >= $currentArgumentPosition->offsetStart &&
-                    $chunk->offsetEnd < $currentArgumentPosition->offsetStart
-                ) {
-                    $args[] = $currentArgumentPosition;
-                    continue;
-                }
-
-                break;
-            }
-
-            $result[] = new TemplateBlockDto([]);
+            $result[] = new TemplateBlockDto(
+                $this->createParts($chunk->content)
+            );
         }
-
-        var_dump($argumentSequences);die();
 
         return $result;
     }
 
     /**
+     * @param string $string
      * @return TemplatePartDto[]
      */
-    private function createParts(string $string, array $args): array
+    private function createParts(string $string): array
     {
+        $paramProcessorsMap = self::mapPatternIdToParamProcessor(
+            $this->paramProcessorRegistry->getAll()
+        );
 
+        if (!$paramProcessorsMap) {
+            return [new TemplatePartDto($string, false)];
+        }
 
-        return [];
+        $sequences = self::createSequencesFromPattern(
+            self::createParamProcessorsRegexpToSearchPatterns($paramProcessorsMap),
+            $string
+        );
+
+        $chunks = self::splitToChunks($string, $sequences);
+
+        $result = [];
+        foreach ($chunks as $chunk) {
+            $param = false;
+            for ($i = 0; $i < count($sequences); $i++) {
+                if ($sequences[$i]->offsetStart === $chunk->offsetStart) {
+                    $param = true;
+                    break;
+                }
+            }
+
+            $result[] = new TemplatePartDto(
+                $chunk->content,
+                $param
+            );
+        }
+
+        return $result;
     }
 
     /**
@@ -167,8 +144,10 @@ class TemplateEngineMaker implements TemplateEngineMakerInterface
         );
     }
 
-        /**
-     * @return TemplatePositionDto[]
+    /**
+     * @param string $regexp
+     * @param string $query
+     * @return array
      */
     private static function createSequencesFromPattern(string $regexp, string $query): array
     {
@@ -192,19 +171,6 @@ class TemplateEngineMaker implements TemplateEngineMakerInterface
                 );
             },
             $matches[0] ?? []
-        );
-    }
-
-    private static function getEmpty(string $query): TemplateDto
-    {
-        return new TemplateDto(
-            [
-                new TemplateBlockDto(
-                    [
-                        new TemplatePartDto($query, 0)
-                    ]
-                )
-            ]
         );
     }
 
@@ -243,68 +209,5 @@ class TemplateEngineMaker implements TemplateEngineMakerInterface
         }
 
         return '/' . $regexp . '/';
-    }
-
-    /**
-     * @param string $query
-     * @param array $offsetToArgMap
-     * @param ParamProcessorInterface[] $paramProcessorsMap
-     * @param array $matches
-     * @return string
-     * @throws WrongParamTypeException
-     */
-    private function resolveTemplate(
-        string $query,
-        array $offsetToArgMap,
-        array $paramProcessorsMap,
-        array $matches,
-    ): string {
-        $patterns = [];
-        foreach ($paramProcessorsMap as $processorKey => $processor) {
-            $processorMatches = $matches[$processorKey] ?? [];
-
-            foreach ($processorMatches as list($matchedPattern, $offset)) {
-                if (is_null($matchedPattern)) {
-                    continue;
-                }
-
-                $patterns[] = new PatternPositionDto(
-                    $offset,
-                    $offset + mb_strlen($matchedPattern),
-                    static fn () => $processor->convertValue($offsetToArgMap[$offset])
-                );
-            }
-        }
-
-        return $this->patternResolver->resolve($query, $patterns);
-    }
-
-    /**
-     * @param array<array> $argSequences
-     * @param array $args
-     * @return array<int, mixed>
-     * @throws WrongParamTypeException
-     */
-    private static function matchArgsToOffset(array $argSequences, array $args): array
-    {
-        $offsetToArgMap = [];
-        foreach ($argSequences as $argKey => $argSequence) {
-            list($argPattern, $argOffset) = $argSequence;
-
-            if (!array_key_exists($argKey, $args)) {
-                throw new WrongParamTypeException(
-                    sprintf(
-                        'There is no argument num %d to fit pattern on offset %d for pattern %s',
-                        $argKey,
-                        $argOffset,
-                        $argPattern
-                    )
-                );
-            }
-
-            $offsetToArgMap[$argOffset] = $args[$argKey];
-        }
-
-        return $offsetToArgMap;
     }
 }
