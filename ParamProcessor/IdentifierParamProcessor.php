@@ -32,7 +32,7 @@ class IdentifierParamProcessor extends AbstractParamProcessor
         foreach ($values as $value) {
             if (is_scalar($value) || is_null($value)) {
                 $result[] = is_null($value) ?
-                    'null' :
+                    'NULL' :
                     sprintf("`%s`", $this->escapeStringConverter->escape($value));
             }
         }

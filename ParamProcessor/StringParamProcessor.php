@@ -27,7 +27,7 @@ class StringParamProcessor extends AbstractParamProcessor
         $this->throwErrorOnInvalidValue($value);
 
         return is_null($value) ?
-            'null' :
+            'NULL' :
             sprintf("'%s'", $this->escapeStringConverter->escape($value));
     }
 

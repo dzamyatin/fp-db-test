@@ -20,7 +20,7 @@ class FloatParamProcessor extends AbstractParamProcessor
     {
         $this->throwErrorOnInvalidValue($value);
 
-        return is_null($value) ? 'null' : (float) $value;
+        return is_null($value) ? 'NULL' : (float) $value;
     }
 
     public function isValueSupportedRecognizing(mixed $value): bool

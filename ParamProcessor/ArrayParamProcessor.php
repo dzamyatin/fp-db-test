@@ -28,7 +28,7 @@ class ArrayParamProcessor extends AbstractParamProcessor
     {
         $convertedValues = $this->convertValues((array) $value);
 
-        if (count(array_filter($convertedValues, 'is_int')) === count($convertedValues)) {
+        if (count(array_filter(array_keys($convertedValues), 'is_int')) === count($convertedValues)) {
             return implode(', ', $convertedValues);
         }
 

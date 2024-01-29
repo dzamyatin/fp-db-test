@@ -20,7 +20,7 @@ class IntegerParamProcessor extends AbstractParamProcessor
     {
         $this->throwErrorOnInvalidValue($value);
 
-        return is_null($value) ? 'null' : (int) $value;
+        return is_null($value) ? 'NULL' : (int) $value;
     }
 
     public function isValueSupportedRecognizing(mixed $value): bool
