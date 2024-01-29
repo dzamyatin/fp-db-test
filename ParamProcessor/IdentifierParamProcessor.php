@@ -2,8 +2,6 @@
 
 namespace FpDbTest\ParamProcessor;
 
-use FpDbTest\ParamProcessor\Exception\WrongParamTypeException;
-
 class IdentifierParamProcessor extends AbstractParamProcessor
 {
     private const CODE = 'IDENTIFIER';
