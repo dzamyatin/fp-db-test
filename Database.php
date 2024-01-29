@@ -28,7 +28,11 @@ class Database implements DatabaseInterface
 
         $template = $this->templateMaker->make($query);
 
-        return $this->templateEngineProcessor->process($template, $args);
+        return $this->templateEngineProcessor->process(
+            $template,
+            $args,
+            $this
+        );
     }
 
     public function skip()

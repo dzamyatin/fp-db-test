@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace FpDbTest\TemplateEngine;
 
+use FpDbTest\DatabaseInterface;
 use FpDbTest\ParamProcessor\ParamProcessorRegistryInterface;
 use FpDbTest\TemplateEngine\Dto\TemplateDto;
 use Exception;
@@ -18,10 +19,11 @@ class TemplateEngineProcessor implements TemplateEngineProcessorInterface
     /**
      * @inheritDoc
      */
-    public function process(TemplateDto $templateDto, array $args): string
+    public function process(TemplateDto $templateDto, array $args, DatabaseInterface $database): string
     {
         $blockString = '';
         foreach ($templateDto->getBlocks() as $block) {
+            $skipBlock = false;
             $partString = '';
             foreach ($block->getParts() as $part) {
                 if (is_null($part->getParamProcessorCode())) {
@@ -41,10 +43,12 @@ class TemplateEngineProcessor implements TemplateEngineProcessorInterface
                     );
                 }
 
-                $partString .= $processor->convertValue(array_shift($args));
+                $arg = array_shift($args);
+                $skipBlock = $arg === $database->skip();
+                $partString .= $processor->convertValue($arg);
             }
 
-            $blockString .= $partString;
+            $blockString .= $skipBlock ? '' : trim($partString, '{}');
         }
 
         return $blockString;
