@@ -2,17 +2,20 @@
 
 namespace FpDbTest;
 
-use Exception;
 use FpDbTest\ParamProcessor\Exception\WrongParamTypeException;
 use FpDbTest\ParamProcessor\ParamProcessorInterface;
 use FpDbTest\ParamProcessor\ParamProcessorRegistryInterface;
+use FpDbTest\PostProcessor\PostProcessorRegistryInterface;
 use mysqli;
 
 class Database implements DatabaseInterface
 {
+    const SKIP_SYMBOL = '[:☃☽♻:]';
+
     public function __construct(
         private mysqli $mysqli,
-        private ParamProcessorRegistryInterface $paramProcessorRegistry
+        private ParamProcessorRegistryInterface $paramProcessorRegistry,
+        private PostProcessorRegistryInterface $postProcessorRegistry,
     ) {}
 
     /**
@@ -27,12 +30,21 @@ class Database implements DatabaseInterface
 
         $query = $this->applyParamProcessors($query, $args);
 
-        return $query;
+        return $this->applyPostProcessors($query);
     }
 
     public function skip()
     {
-        throw new Exception();
+        return self::SKIP_SYMBOL;
+    }
+
+    private function applyPostProcessors(string $query): string
+    {
+        foreach ($this->postProcessorRegistry->getAll() as $postProcessor) {
+            $query = $postProcessor->process($query, $this);
+        }
+
+        return $query;
     }
 
     private function applyParamProcessors(string $query, array $args): string

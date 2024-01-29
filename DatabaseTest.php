@@ -33,7 +33,8 @@ class DatabaseTest
             'UPDATE users SET ?a WHERE user_id = -1',
             [['name' => 'Jack', 'email' => null]]
         );
-//
+
+
 //        foreach ([null, true] as $block) {
 //            $results[] = $this->db->buildQuery(
 //                'SELECT name FROM users WHERE ?# IN (?a){ AND block = ?d}',
