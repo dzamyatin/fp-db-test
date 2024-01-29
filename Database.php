@@ -5,6 +5,8 @@ namespace FpDbTest;
 use FpDbTest\ParamProcessor\Exception\WrongParamTypeException;
 use FpDbTest\ParamProcessor\ParamProcessorInterface;
 use FpDbTest\ParamProcessor\ParamProcessorRegistryInterface;
+use FpDbTest\PatternString\Dto\PatternPositionDto;
+use FpDbTest\PatternString\PatternResolverInterface;
 use FpDbTest\PostProcessor\PostProcessorRegistryInterface;
 use mysqli;
 
@@ -16,6 +18,7 @@ class Database implements DatabaseInterface
         private mysqli $mysqli,
         private ParamProcessorRegistryInterface $paramProcessorRegistry,
         private PostProcessorRegistryInterface $postProcessorRegistry,
+        private PatternResolverInterface $patternResolver
     ) {}
 
     /**
@@ -79,15 +82,12 @@ class Database implements DatabaseInterface
             $args
         );
 
-        $result = self::splitQueryIntoPieces(
+        return $this->resolveTemplate(
             $query,
-            array_keys($offsetToArgMap),
             $offsetToArgMap,
             $paramProcessorsMap,
             $matches
         );
-
-        return implode('', $result);
     }
 
     /**
@@ -121,41 +121,19 @@ class Database implements DatabaseInterface
 
     /**
      * @param string $query
-     * @param int[] $chunkPositions
      * @param array $offsetToArgMap
      * @param ParamProcessorInterface[] $paramProcessorsMap
      * @param array $matches
-     * @return array<int, string>
+     * @return string
+     * @throws WrongParamTypeException
      */
-    private static function splitQueryIntoPieces(
+    private function resolveTemplate(
         string $query,
-        array $chunkPositions,
         array $offsetToArgMap,
         array $paramProcessorsMap,
         array $matches,
-    ): array {
-        $chunkPositions = array_values($chunkPositions);
-        sort($chunkPositions);
-
-        $lostPart = '';
-        $pieces = [];
-        for ($i = 0; $i < count($chunkPositions); $i++) {
-            if ($i === 0 && $chunkPositions[$i] !== 0) {
-                $lostPart = substr(
-                    $query,
-                    0,
-                    $chunkPositions[$i]
-                );
-            }
-
-            $pieces[$chunkPositions[$i]] = substr(
-                $query,
-                $chunkPositions[$i],
-                ($chunkPositions[$i + 1] ?? mb_strlen($query)) - $chunkPositions[$i]
-            );
-        }
-
-        $result = [];
+    ): string {
+        $patterns = [];
         foreach ($paramProcessorsMap as $processorKey => $processor) {
             $processorMatches = $matches[$processorKey] ?? [];
 
@@ -164,16 +142,15 @@ class Database implements DatabaseInterface
                     continue;
                 }
 
-                $result[$offset] = $processor->convertValue($offsetToArgMap[$offset]) .
-                    substr($pieces[$offset], mb_strlen($matchedPattern));
+                $patterns[] = new PatternPositionDto(
+                    $offset,
+                    $offset + mb_strlen($matchedPattern),
+                    static fn () => $processor->convertValue($offsetToArgMap[$offset])
+                );
             }
         }
 
-        ksort($result);
-
-        array_unshift($result, $lostPart);
-
-        return $result;
+        return $this->patternResolver->resolve($query, $patterns);
     }
 
     /**

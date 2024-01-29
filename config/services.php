@@ -15,6 +15,8 @@ use FpDbTest\ParamProcessor\ParamProcessorRegistry;
 use FpDbTest\ParamProcessor\ParamProcessorRegistryInterface;
 use FpDbTest\ParamProcessor\StringParamProcessor;
 use FpDbTest\ParamProcessor\UnrecognizedParamProcessor;
+use FpDbTest\PatternString\PatternResolver;
+use FpDbTest\PatternString\PatternResolverInterface;
 use FpDbTest\PostProcessor\ConditionPostProcessor;
 use FpDbTest\PostProcessor\PostProcessorRegistry;
 use FpDbTest\PostProcessor\PostProcessorRegistryInterface;
@@ -34,6 +36,7 @@ return [
             $serviceLocator->get(mysqli::class),
             $serviceLocator->get(ParamProcessorRegistryInterface::class),
             $serviceLocator->get(PostProcessorRegistryInterface::class),
+            $serviceLocator->get(PatternResolverInterface::class),
         );
     },
     DatabaseTest::class => static function (ServiceLocator $serviceLocator): DatabaseTest {
@@ -88,5 +91,8 @@ return [
                 $serviceLocator->get(ConditionPostProcessor::class)
             ],
         );
+    },
+    PatternResolverInterface::class => static function (): PatternResolverInterface {
+        return new PatternResolver();
     },
 ];

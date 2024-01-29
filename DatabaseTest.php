@@ -34,13 +34,12 @@ class DatabaseTest
             [['name' => 'Jack', 'email' => null]]
         );
 
-
-//        foreach ([null, true] as $block) {
-//            $results[] = $this->db->buildQuery(
-//                'SELECT name FROM users WHERE ?# IN (?a){ AND block = ?d}',
-//                ['user_id', [1, 2, 3], $block ?? $this->db->skip()]
-//            );
-//        }
+        foreach ([null, true] as $block) {
+            $results[] = $this->db->buildQuery(
+                'SELECT name FROM users WHERE ?# IN (?a){ AND block = ?d}',
+                ['user_id', [1, 2, 3], $block ?? $this->db->skip()]
+            );
+        }
 //
 //        $correct = [
 //            'SELECT name FROM users WHERE user_id = 1',
