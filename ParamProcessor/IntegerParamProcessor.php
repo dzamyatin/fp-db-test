@@ -4,9 +4,16 @@ namespace FpDbTest\ParamProcessor;
 
 class IntegerParamProcessor extends AbstractParamProcessor
 {
+    private const CODE = 'INTEGER';
+
     public function getRegexpToCatchPattern(): string
     {
         return '\?d';
+    }
+
+    public static function getCode(): string
+    {
+        return self::CODE;
     }
 
     public function convertValue(mixed $value): string

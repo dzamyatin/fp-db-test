@@ -13,7 +13,9 @@ interface ParamProcessorRegistryInterface
      * @param mixed $value
      * @return ParamProcessorInterface|null
      */
-    public function getSupported($value): ?ParamProcessorInterface;
+    public function getSupported(mixed $value): ?ParamProcessorInterface;
+
+    public function getByCode(string $code): ?ParamProcessorInterface;
 
     public function add(ParamProcessorInterface $processor): self;
 }

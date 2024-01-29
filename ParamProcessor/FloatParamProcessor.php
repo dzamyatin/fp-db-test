@@ -4,9 +4,16 @@ namespace FpDbTest\ParamProcessor;
 
 class FloatParamProcessor extends AbstractParamProcessor
 {
+    private const CODE = 'FLOAT';
+
     public function getRegexpToCatchPattern(): string
     {
         return '\?f';
+    }
+
+    public static function getCode(): string
+    {
+        return self::CODE;
     }
 
     public function convertValue(mixed $value): string

@@ -4,11 +4,16 @@ namespace FpDbTest\ParamProcessor;
 
 class ParamProcessorRegistry implements ParamProcessorRegistryInterface
 {
+    private array $processorsByName = [];
+
     /**
      * @param ParamProcessorInterface[] $processors
      */
-    public function __construct(private array $processors)
+    public function __construct(array $processors)
     {
+        foreach ($processors as $processor) {
+            $this->add($processor);
+        }
     }
 
     /**
@@ -16,7 +21,7 @@ class ParamProcessorRegistry implements ParamProcessorRegistryInterface
      */
     public function add(ParamProcessorInterface $processor): self
     {
-        $this->processors[] = $processor;
+        $this->processorsByName[$processor::getCode()] = $processor;
 
         return $this;
     }
@@ -26,16 +31,30 @@ class ParamProcessorRegistry implements ParamProcessorRegistryInterface
      */
     public function getAll(): array
     {
-        return $this->processors;
+        return $this->processorsByName;
     }
 
     /**
      * @inheritdoc
      */
-    public function getSupported($value): ?ParamProcessorInterface
+    public function getSupported(mixed $value): ?ParamProcessorInterface
     {
-        foreach ($this->processors as $processor) {
+        foreach ($this->processorsByName as $processor) {
             if ($processor->isValueSupportedRecognizing($value)) {
+                return $processor;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getByCode(string $code): ?ParamProcessorInterface
+    {
+        foreach ($this->processorsByName as $processor) {
+            if ($processor::getCode() === $code) {
                 return $processor;
             }
         }

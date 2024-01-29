@@ -12,6 +12,7 @@ use FpDbTest\PatternString\PatternResolverInterface;
 use FpDbTest\TemplateEngine\Dto\TemplateBlockDto;
 use FpDbTest\TemplateEngine\Dto\TemplateDto;
 use FpDbTest\TemplateEngine\Dto\TemplatePartDto;
+use FpDbTest\TemplateEngine\Dto\TemplatePositionParamProcessorAwareDto;
 
 class TemplateEngineMaker implements TemplateEngineMakerInterface
 {
@@ -50,18 +51,7 @@ class TemplateEngineMaker implements TemplateEngineMakerInterface
      */
     private function createParts(string $string): array
     {
-        $paramProcessorsMap = self::mapPatternIdToParamProcessor(
-            $this->paramProcessorRegistry->getAll()
-        );
-
-        if (!$paramProcessorsMap) {
-            return [new TemplatePartDto($string, false)];
-        }
-
-        $sequences = self::createSequencesFromPattern(
-            self::createParamProcessorsRegexpToSearchPatterns($paramProcessorsMap),
-            $string
-        );
+        $sequences = $this->createParamSequences($string);
 
         $chunks = self::splitToChunks($string, $sequences);
 
@@ -141,6 +131,59 @@ class TemplateEngineMaker implements TemplateEngineMakerInterface
                 $offsetStart,
                 $offsetEnd - $offsetStart
             )
+        );
+    }
+
+    /**
+     * @param string $string
+     * @return TemplatePositionParamProcessorAwareDto[]
+     */
+    private function createParamSequences(string $string): array
+    {
+        $paramProcessorsMap = self::mapPatternIdToParamProcessor(
+            $this->paramProcessorRegistry->getAll()
+        );
+
+        if (!$paramProcessorsMap) {
+            return [];
+        }
+
+        preg_match_all(
+            self::createParamProcessorsRegexpToSearchPatterns($paramProcessorsMap),
+            $string,
+            $matches,
+            PREG_OFFSET_CAPTURE |
+            PREG_PATTERN_ORDER |
+            PREG_UNMATCHED_AS_NULL
+        );
+
+        $matches = array_filter($matches);
+
+        $offsetToProcessorMap = [];
+        foreach ($paramProcessorsMap as $processorId => $processor) {
+            if (!$processorMatches = array_filter($matches[$processorId] ?? [])) {
+                continue;
+            }
+
+            foreach ($processorMatches as list($pattern, $offset)) {
+                if (is_null($pattern)) {
+                    continue;
+                }
+
+                $offsetToProcessorMap[$offset] = $processor::getCode();
+            }
+        }
+
+        return array_map(
+            static function (array $match) use ($offsetToProcessorMap) {
+                list($matchedPattern, $offset) = $match;
+                return new TemplatePositionParamProcessorAwareDto(
+                    $offset,
+                    $offset + mb_strlen($matchedPattern),
+                    $offsetToProcessorMap[$offset]
+                );
+            },
+            $matches[0] ?? []
         );
     }
 

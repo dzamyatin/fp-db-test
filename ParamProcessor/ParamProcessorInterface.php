@@ -6,6 +6,8 @@ use FpDbTest\ParamProcessor\Exception\WrongParamTypeException;
 
 interface ParamProcessorInterface
 {
+    public static function getCode(): string;
+
     public function getRegexpToCatchPattern(): string;
 
     public function isValueSupportedRecognizing(mixed $value): bool;

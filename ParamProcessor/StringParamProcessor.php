@@ -6,8 +6,15 @@ use FpDbTest\ParamProcessor\Exception\WrongParamTypeException;
 
 class StringParamProcessor extends AbstractParamProcessor
 {
+    private const CODE = 'STRING';
+
     public function __construct(private EscapeStringConverterInterface $escapeStringConverter)
     {
+    }
+
+    public static function getCode(): string
+    {
+        return self::CODE;
     }
 
     public function getRegexpToCatchPattern(): string

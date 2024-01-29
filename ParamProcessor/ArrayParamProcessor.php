@@ -6,10 +6,17 @@ use FpDbTest\ParamProcessor\Exception\WrongParamTypeException;
 
 class ArrayParamProcessor extends AbstractParamProcessor
 {
+    private const CODE = 'ARRAY';
+
     public function __construct(
         private ParamProcessorRegistryInterface $paramProcessorRegistry,
         private EscapeStringConverterInterface $escapeStringConverter,
     ) {
+    }
+
+    public static function getCode(): string
+    {
+        return self::CODE;
     }
 
     public function getRegexpToCatchPattern(): string
