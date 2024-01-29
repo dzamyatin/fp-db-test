@@ -38,7 +38,7 @@ class TemplateEngineMaker implements TemplateEngineMakerInterface
             $query
         );
 
-        $blocks = $this->getBlocks($query, $sequences);
+        $blocks = $this->createBlocks($query, $sequences);
 
 //        var_dump($blocks);die();
 
@@ -63,20 +63,48 @@ class TemplateEngineMaker implements TemplateEngineMakerInterface
 
     /**
      * @param string $query
-     * @param TemplatePositionDto[] $sequences
+     * @param TemplatePositionDto[] $argumentSequences
      * @return TemplateBlockDto[]
      */
-    private function getBlocks(string $query, array $argumentSequences): array
+    private function createBlocks(string $query, array $argumentSequences): array
     {
         $matches = self::createSequencesFromPattern('/\{((.|\n)*?)\}/', $query);
-
         $chunks = self::splitToChunks($query, $matches);
 
-        var_dump($chunks);die();
+        $result = [];
+        $lastArgIndex = 0;
+        foreach ($chunks as $chunk) {
+            $args = [];
+            for ($i = $lastArgIndex; $i < count($argumentSequences); $i++) {
+                $lastArgIndex = $i + 1;
+                $currentArgumentPosition = $argumentSequences[$i];
+                if (
+                    $chunk->offsetStart >= $currentArgumentPosition->offsetStart &&
+                    $chunk->offsetEnd < $currentArgumentPosition->offsetStart
+                ) {
+                    $args[] = $currentArgumentPosition;
+                    continue;
+                }
 
-        return [
-            new TemplateBlockDto([])
-        ];
+                break;
+            }
+
+            $result[] = new TemplateBlockDto([]);
+        }
+
+        var_dump($argumentSequences);die();
+
+        return $result;
+    }
+
+    /**
+     * @return TemplatePartDto[]
+     */
+    private function createParts(string $string, array $args): array
+    {
+
+
+        return [];
     }
 
     /**
