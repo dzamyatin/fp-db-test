@@ -66,7 +66,8 @@ return [
     },
     ArrayParamProcessor::class => static function (ServiceLocator $serviceLocator): ArrayParamProcessor {
         return new ArrayParamProcessor(
-            $serviceLocator->get(ParamProcessorRegistryInterface::class)
+            $serviceLocator->get(ParamProcessorRegistryInterface::class),
+            $serviceLocator->get(EscapeStringConverterInterface::class)
         );
     },
     UnrecognizedParamProcessor::class => static function (ServiceLocator $serviceLocator): UnrecognizedParamProcessor {

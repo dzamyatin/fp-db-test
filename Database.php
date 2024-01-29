@@ -128,11 +128,11 @@ class Database implements DatabaseInterface
         $lostPart = '';
         $pieces = [];
         for ($i = 0; $i < count($chunkPositions); $i++) {
-            if ($i === 0 && $chunkPositions[0] !== 0) {
+            if ($i === 0 && $chunkPositions[$i] !== 0) {
                 $lostPart = substr(
                     $query,
                     0,
-                    $chunkPositions[0]
+                    $chunkPositions[$i]
                 );
             }
 
