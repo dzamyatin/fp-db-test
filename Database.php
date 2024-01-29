@@ -13,7 +13,7 @@ class Database implements DatabaseInterface
 
     public function __construct(
         private TemplateEngineMakerInterface $templateMaker,
-        private TemplateEngineProcessorInterface $templateEngineProcessor
+        private TemplateEngineProcessorInterface $templateProcessor
     ) {}
 
     /**
@@ -28,7 +28,7 @@ class Database implements DatabaseInterface
 
         $template = $this->templateMaker->make($query);
 
-        return $this->templateEngineProcessor->process(
+        return $this->templateProcessor->process(
             $template,
             $args,
             $this
