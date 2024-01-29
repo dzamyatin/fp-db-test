@@ -11,5 +11,5 @@ docker compose -f ./docker-compose.yml up -d --remove-orphans
 ```
 
 ```
-docker exec -ti dz-test-php sh -c "php test"
+docker exec -ti dz-test-php sh -c 'echo "\n" && php test.php && echo "\n"'
 ```

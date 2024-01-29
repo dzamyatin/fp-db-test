@@ -8,7 +8,7 @@ up:
 down:
 	docker compose -f ./docker-compose.yml down
 run:
-	docker exec -ti ${PROJECT_NAME}-php sh -c 'echo "\n\n" && php test.php && echo "\n\n";'
+	docker exec -ti ${PROJECT_NAME}-php sh -c 'echo "\n" && php test.php && echo "\n"'
 test:
 	@make build
 	@make up
