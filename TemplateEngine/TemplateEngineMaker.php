@@ -239,7 +239,7 @@ class TemplateEngineMaker implements TemplateEngineMakerInterface
 
     private static function getPatternNameFromProcessor(ParamProcessorInterface $processor): string
     {
-        return 'pattern' . spl_object_id($processor);
+        return 'pattern' . $processor::getCode();
     }
 
     /**
