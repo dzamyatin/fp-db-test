@@ -15,8 +15,6 @@ use FpDbTest\ParamProcessor\ParamProcessorRegistry;
 use FpDbTest\ParamProcessor\ParamProcessorRegistryInterface;
 use FpDbTest\ParamProcessor\StringParamProcessor;
 use FpDbTest\ParamProcessor\UnrecognizedParamProcessor;
-use FpDbTest\PatternString\PatternResolver;
-use FpDbTest\PatternString\PatternResolverInterface;
 use FpDbTest\ServiceLocator;
 use FpDbTest\TemplateEngine\TemplateEngineMaker;
 use FpDbTest\TemplateEngine\TemplateEngineMakerInterface;
@@ -80,9 +78,6 @@ return [
         return new UnrecognizedParamProcessor(
             $serviceLocator->get(ParamProcessorRegistryInterface::class)
         );
-    },
-    PatternResolverInterface::class => static function (): PatternResolverInterface {
-        return new PatternResolver();
     },
     TemplateEngineMakerInterface::class => static function (ServiceLocator $serviceLocator): TemplateEngineMakerInterface {
         return new TemplateEngineMaker(
