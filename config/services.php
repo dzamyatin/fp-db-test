@@ -34,9 +34,6 @@ return [
     },
     DatabaseInterface::class => static function (ServiceLocator $serviceLocator): DatabaseInterface {
         return new Database(
-            $serviceLocator->get(mysqli::class),
-            $serviceLocator->get(ParamProcessorRegistryInterface::class),
-            $serviceLocator->get(PatternResolverInterface::class),
             $serviceLocator->get(TemplateEngineMakerInterface::class),
             $serviceLocator->get(TemplateEngineProcessorInterface::class),
         );

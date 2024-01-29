@@ -22,10 +22,6 @@ class TemplateEngineProcessor implements TemplateEngineProcessorInterface
     {
         $blockString = '';
         foreach ($templateDto->getBlocks() as $block) {
-            if ($block->getArgumentCount() <= 0) {
-                continue;
-            }
-
             $partString = '';
             foreach ($block->getParts() as $part) {
                 if (is_null($part->getParamProcessorCode())) {

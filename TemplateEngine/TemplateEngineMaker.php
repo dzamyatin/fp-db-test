@@ -113,6 +113,14 @@ class TemplateEngineMaker implements TemplateEngineMakerInterface
             }
         }
 
+        if (!$pieces) {
+            $pieces[] = self::createChunk(
+                $string,
+                0,
+                mb_strlen($string)
+            );
+        }
+
         return $pieces;
     }
 
